@@ -21,17 +21,19 @@ The application features a dual-sided architecture, allowing both fans and staff
 
 ## Technical Architecture & Workflow
 
-* **Vanilla Structure**: Built purely with lightweight HTML, CSS, and localized JavaScript to maximize performance.
-* **The "Brain" (`data.js`)**: An intelligent abstraction layer that manages stadium state. It houses logic that compares queue times and crowd densities to output live routing overrides and food stall recommendations.
-* **Live Simulation Engine**: To demonstrate its capabilities, the application runs a background interval (`simulateLiveUpdates`) that mathematically jitters queue times, zone crowds, and wait times every 3 seconds, proving that the front-end dynamically reacts to shifting environments.
-* **Aesthetic System**: Engineered with a unified glassmorphism design language using custom CSS tokens (`styles.css`), rendering a dark-mode, neon-accented premium UI without reliance on heavy frameworks.
+* **Vanilla Module System**: Built purely with lightweight Native ES Modules (`<script type="module">`), ensuring blisteringly fast browser execution without requiring a heavy Node/Webpack compile chain.
+* **Google Maps Platform**: Live visual feedback is powered by real `@googlemaps/js-api-loader` mapping tools, injecting dynamic Heatmap layers directly onto the view.
+* **Gemini AI Engine (`services/ai.js`)**: Real-time stall recommendations and congestion routing are mathematically generated using the Google `@google/genai` library pointing to `gemini-2.5-flash`.
+* **Firebase Cloud Infrastructure (`services/db.js` & `auth.js`)**: State management and Security relies on the `firebase@10.8.0` SDK ecosystem featuring Realtime Database tracking alongside a complete role-based Authentication intercept layer.
+* **Aesthetic System**: Engineered with a unified glassmorphism design language using custom CSS tokens (`styles.css`), rendering a dark-mode, neon-accented premium UI.
 
 ## Quick Start
-To view the prototype locally:
+To view the live application locally:
 1. Clone the repository to your local machine.
-2. Start a standard HTTP server in the root directory (e.g., `python3 -m http.server 8000`).
-3. Navigate to `http://localhost:8000` in your browser.
-4. Select whether to enter as a **Fan** or **Staff** to explore the respective interfaces.
+2. Duplicate `src/config.js.example` to `src/config.js` and input your personal Firebase, Google Maps, and Gemini API keys.
+3. Start a standard HTTP server in the root directory (e.g., `python3 -m http.server 8000`).
+4. Navigate to `http://localhost:8000` in your browser.
+5. Select whether to enter as a **Fan** or **Staff** to explore the fully functional interfaces.
 
 
 
