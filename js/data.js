@@ -21,9 +21,9 @@ const stadiumData = {
     },
     routes: {
         // Mock routing status
-        currentRoute: { 
-            from: "Gate A", 
-            to: "Seat (Sec 105)", 
+        currentRoute: {
+            from: "Gate A",
+            to: "Seat (Sec 105)",
             status: "congested", // congested, clear
             delay: "10 mins"
         }
@@ -36,7 +36,7 @@ const aiEngine = {
     getBestGate: () => {
         let best = null;
         if (!stadiumData || !stadiumData.gates) return null;
-        
+
         for (let key in stadiumData.gates) {
             let gate = stadiumData.gates[key];
             if (gate && gate.status === "open") {
@@ -52,7 +52,7 @@ const aiEngine = {
     getFoodRecommendation: (preferredStallId) => {
         if (!stadiumData || !stadiumData.food) return { trigger: false };
         const preferred = stadiumData.food[preferredStallId];
-        
+
         if (!preferred) return { trigger: false };
 
         // If queue is > 15 mins, suggest a faster alternative
@@ -81,11 +81,11 @@ const aiEngine = {
     // Logic 3: Route optimization
     checkRouteStatus: () => {
         if (stadiumData.routes.currentRoute.status === "congested") {
-             return {
-                 trigger: true,
-                 message: "Current route congested! Rerouting via Concourse B to save 10 mins.",
-                 newRoute: "alternative"
-             };
+            return {
+                trigger: true,
+                message: "Current route congested! Rerouting via Concourse B to save 10 mins.",
+                newRoute: "alternative"
+            };
         }
         return { trigger: false };
     }
