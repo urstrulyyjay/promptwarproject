@@ -1,6 +1,3 @@
-# StadiumFlow (Smart Stadium Companion)
-
-![StadiumFlow Aesthetics](img/stadium_bg.png)
 
 ## Vision
 StadiumFlow is an advanced, mobile-first concept application designed to revolutionize the live event experience. By combining real-time crowd data, AI-driven recommendations, and sleek, premium glassmorphism aesthetics, the system optimizes attendee flow and radically reduces wait times within massive sporting venues and arenas.
@@ -38,5 +35,18 @@ To view the prototype locally:
 
 
 
-## Developed By 
-Jay A Dhokne 
+
+## 👨‍💻 Author
+
+Jay Dhokne
+IT Student | Developer | Creative Technologist
+
+GitHub: https://github.com/urstrulyyjay
+
+
+
+
+
+##⭐ Show Support
+
+If you like this project, give it a ⭐ on GitHub.
