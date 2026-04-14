@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Stadium Companion</title>
+    <!-- Use Inter font for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for standard vector icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ROLE SELECTOR -->
+    <div id="role-selector">
+        <h1 class="header-title" style="text-align: center; font-size: 2rem; margin-bottom: 2rem;">
+            StadiumFlow
+        </h1>
+        <button class="btn btn-primary" onclick="appController.initRole('user')" style="width: 250px;">
+            <i class="fa-solid fa-user"></i> Enter as Fan
+        </button>
+        <button class="btn btn-danger" onclick="appController.initRole('admin')" style="width: 250px;">
+            <i class="fa-solid fa-clipboard-user"></i> Enter as Staff
+        </button>
+    </div>
+
+    <!-- USER APP -->
+    <div class="app-container hidden" id="user-app">
+        <header class="header">
+            <div class="header-title">StadiumFlow</div>
+            <div style="font-size: 1.2rem; cursor: pointer;"><i class="fa-regular fa-bell"></i></div>
+        </header>
+
+        <main class="content-area">
+            
+            <!-- HOME DASHBOARD VIEW -->
+            <section id="view-home" class="view active">
+                
+                <!-- The Brain's Primary Output -->
+                <div id="ai-suggestion-box" class="recommendation-box glass">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="card glass">
+                    <h3 class="text-secondary"><i class="fa-solid fa-sign-in-alt"></i> Fast Entry Plan</h3>
+                    <div class="stat-row">
+                        <span>Assigned Gate</span>
+                        <span class="text-danger" id="assigned-gate">Gate A (25m wait)</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>AI Suggestion</span>
+                        <span class="text-success" id="suggested-gate" style="font-weight: 600;">Calculating...</span>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%; margin-top: 1rem; padding: 0.5rem;" onclick="appController.acceptGateAlternative()">Switch to Fast Gate</button>
+                </div>
+
+                <div class="card glass">
+                    <h3><i class="fa-solid fa-burger"></i> Food Quick-Check</h3>
+                    <div class="stat-row">
+                        <span>Burger Stand (Sec 102)</span>
+                        <span class="text-danger">22m Wait</span>
+                    </div>
+                    <div id="food-suggestion" class="text-primary" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                        <!-- AI recommends alternatives -->
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- MAP & ROUTING VIEW (WOW FEATURE) -->
+            <section id="view-map" class="view">
+                <h2>Live Routing</h2>
+                <div class="map-container">
+                    <div class="stadium-map">
+                        <div class="map-node node-gate" data-label="Entry"></div>
+                        <div class="map-node node-seat" data-label="Your Seat"></div>
+                        <div class="map-node node-food" data-label="Congested Area" id="hotzone"></div>
+
+                        <svg class="route-svg">
+                            <!-- Congested default path -->
+                            <path class="route-path congested" id="default-path" d="M 150,30 Q 150,150 180,240" />
+                            <!-- Smart alternative path (hidden initially) -->
+                            <path class="route-path alternative hidden" id="smart-path" d="M 150,30 Q 50,150 180,240" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div id="route-alert" class="recommendation-box danger glass" style="margin-top: 1rem;">
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i> Congestion Detected</strong>
+                    <span style="font-size:0.9rem;">The main concourse is blocked. Delay: 10 mins.</span>
+                    <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem; padding: 0.5rem;" onclick="appController.activateSmartRoute()">Activate Smart Route</button>
+                </div>
+            </section>
+
+
+            <!-- DIGITAL QUEUES VIEW -->
+            <section id="view-queues" class="view">
+                <h2>Digital Lines</h2>
+                <p class="text-muted" style="margin-bottom:1rem;">Wait anywhere, not in line.</p>
+                
+                <div id="queue-list" style="display:flex; flex-direction:column; gap:1rem;">
+                    <!-- JS populated -->
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="appController.switchTab('home')">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="appController.switchTab('map')">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>Map & Routing</span>
+            </div>
+            <div class="nav-item" onclick="appController.switchTab('queues')">
+                <i class="fa-solid fa-clock"></i>
+                <span>Queues</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- ADMIN APP -->
+    <div class="app-container hidden" id="admin-app" style="max-width: 800px;">
+        <header class="header">
+            <div class="header-title text-danger">Staff Command Center</div>
+            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="location.reload()">Exit</button>
+        </header>
+        <main class="content-area">
+            
+            <div class="admin-grid">
+                <!-- Zone Crowds -->
+                <div class="card glass">
+                    <h3 class="text-danger"><i class="fa-solid fa-users-viewfinder"></i> Live Zone Density</h3>
+                    <div id="admin-zones" style="margin-top: 1rem; display:flex; flex-direction:column; gap:0.5rem;">
+                        <!-- JS populated -->
+                    </div>
+                </div>
+
+                <!-- Gate Control -->
+                <div class="card glass">
+                    <h3 class="text-warning"><i class="fa-solid fa-door-open"></i> Gate Management</h3>
+                    <div id="admin-gates" style="margin-top: 1rem; display:flex; flex-direction:column; gap:1rem;">
+                        <!-- JS populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Actions -->
+            <div class="card glass border-danger" style="border-color: var(--danger);">
+                <h3 class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Global Controls</h3>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn btn-danger" style="flex:1;" onclick="appController.triggerEmergency()"><i class="fa-solid fa-person-running"></i> Trigger Emergency Evacuation</button>
+                    <button class="btn" style="flex:1; border: 1px solid var(--primary); color: var(--primary);" onclick="appController.broadcastAlert()"><i class="fa-solid fa-bullhorn"></i> Broadcast Alert</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
