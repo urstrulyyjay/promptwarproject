@@ -14,13 +14,13 @@
 
     <!-- ROLE SELECTOR -->
     <div id="role-selector">
-        <h1 class="header-title" style="text-align: center; font-size: 2rem; margin-bottom: 2rem;">
+        <h1 class="header-title role-title mb-2 text-center">
             StadiumFlow
         </h1>
-        <button class="btn btn-primary" onclick="appController.initRole('user')" style="width: 250px;">
+        <button class="btn btn-primary w-250" onclick="appController.initRole('user')" aria-label="Enter as Fan">
             <i class="fa-solid fa-user"></i> Enter as Fan
         </button>
-        <button class="btn btn-danger" onclick="appController.initRole('admin')" style="width: 250px;">
+        <button class="btn btn-danger w-250" onclick="appController.initRole('admin')" aria-label="Enter as Staff">
             <i class="fa-solid fa-clipboard-user"></i> Enter as Staff
         </button>
     </div>
@@ -29,7 +29,7 @@
     <div class="app-container hidden" id="user-app">
         <header class="header">
             <div class="header-title">StadiumFlow</div>
-            <div style="font-size: 1.2rem; cursor: pointer;"><i class="fa-regular fa-bell"></i></div>
+            <div class="cursor-pointer" aria-label="Notifications" role="button" tabindex="0"><i class="fa-regular fa-bell text-main"></i></div>
         </header>
 
         <main class="content-area">
@@ -50,9 +50,9 @@
                     </div>
                     <div class="stat-row">
                         <span>AI Suggestion</span>
-                        <span class="text-success" id="suggested-gate" style="font-weight: 600;">Calculating...</span>
+                        <span class="text-success" id="suggested-gate"><strong>Calculating...</strong></span>
                     </div>
-                    <button class="btn btn-primary" style="width:100%; margin-top: 1rem; padding: 0.5rem;" onclick="appController.acceptGateAlternative()">Switch to Fast Gate</button>
+                    <button class="btn btn-primary w-100 mt-1 p-05" onclick="appController.acceptGateAlternative()">Switch to Fast Gate</button>
                 </div>
 
                 <div class="card glass">
@@ -61,7 +61,7 @@
                         <span>Burger Stand (Sec 102)</span>
                         <span class="text-danger">22m Wait</span>
                     </div>
-                    <div id="food-suggestion" class="text-primary" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                    <div id="food-suggestion" class="text-primary text-small mt-05">
                         <!-- AI recommends alternatives -->
                     </div>
                 </div>
@@ -86,10 +86,10 @@
                     </div>
                 </div>
 
-                <div id="route-alert" class="recommendation-box danger glass" style="margin-top: 1rem;">
+                <div id="route-alert" class="recommendation-box danger glass mt-1">
                     <strong><i class="fa-solid fa-triangle-exclamation"></i> Congestion Detected</strong>
-                    <span style="font-size:0.9rem;">The main concourse is blocked. Delay: 10 mins.</span>
-                    <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem; padding: 0.5rem;" onclick="appController.activateSmartRoute()">Activate Smart Route</button>
+                    <span class="text-small">The main concourse is blocked. Delay: 10 mins.</span>
+                    <button class="btn btn-primary w-100 mt-05 p-05" onclick="appController.activateSmartRoute()">Activate Smart Route</button>
                 </div>
             </section>
 
@@ -97,9 +97,9 @@
             <!-- DIGITAL QUEUES VIEW -->
             <section id="view-queues" class="view">
                 <h2>Digital Lines</h2>
-                <p class="text-muted" style="margin-bottom:1rem;">Wait anywhere, not in line.</p>
+                <p class="text-muted mb-1">Wait anywhere, not in line.</p>
                 
-                <div id="queue-list" style="display:flex; flex-direction:column; gap:1rem;">
+                <div id="queue-list" class="flex-column" style="gap: 1rem;">
                     <!-- JS populated -->
                 </div>
             </section>
@@ -107,15 +107,15 @@
         </main>
 
         <nav class="bottom-nav">
-            <div class="nav-item active" onclick="appController.switchTab('home')">
+            <div class="nav-item active" data-tab="home" onclick="appController.switchTab('home')" role="button" tabindex="0" aria-label="Home">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </div>
-            <div class="nav-item" onclick="appController.switchTab('map')">
+            <div class="nav-item" data-tab="map" onclick="appController.switchTab('map')" role="button" tabindex="0" aria-label="Map & Routing">
                 <i class="fa-solid fa-map-location-dot"></i>
                 <span>Map & Routing</span>
             </div>
-            <div class="nav-item" onclick="appController.switchTab('queues')">
+            <div class="nav-item" data-tab="queues" onclick="appController.switchTab('queues')" role="button" tabindex="0" aria-label="Digital Queues">
                 <i class="fa-solid fa-clock"></i>
                 <span>Queues</span>
             </div>
@@ -123,10 +123,10 @@
     </div>
 
     <!-- ADMIN APP -->
-    <div class="app-container hidden" id="admin-app" style="max-width: 800px;">
+    <div class="app-container hidden" id="admin-app">
         <header class="header">
             <div class="header-title text-danger">Staff Command Center</div>
-            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="location.reload()">Exit</button>
+            <button class="btn btn-danger p-05" onclick="location.reload()" aria-label="Exit Admin">Exit</button>
         </header>
         <main class="content-area">
             
@@ -134,7 +134,7 @@
                 <!-- Zone Crowds -->
                 <div class="card glass">
                     <h3 class="text-danger"><i class="fa-solid fa-users-viewfinder"></i> Live Zone Density</h3>
-                    <div id="admin-zones" style="margin-top: 1rem; display:flex; flex-direction:column; gap:0.5rem;">
+                    <div id="admin-zones" class="flex-gap-05 mt-1">
                         <!-- JS populated -->
                     </div>
                 </div>
@@ -142,18 +142,26 @@
                 <!-- Gate Control -->
                 <div class="card glass">
                     <h3 class="text-warning"><i class="fa-solid fa-door-open"></i> Gate Management</h3>
-                    <div id="admin-gates" style="margin-top: 1rem; display:flex; flex-direction:column; gap:1rem;">
+                    <div id="admin-gates" class="flex-column mt-1" style="gap: 1rem;">
                         <!-- JS populated -->
                     </div>
                 </div>
             </div>
 
             <!-- Emergency Actions -->
-            <div class="card glass border-danger" style="border-color: var(--danger);">
+            <div class="card glass border-danger">
                 <h3 class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Global Controls</h3>
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button class="btn btn-danger" style="flex:1;" onclick="appController.triggerEmergency()"><i class="fa-solid fa-person-running"></i> Trigger Emergency Evacuation</button>
-                    <button class="btn" style="flex:1; border: 1px solid var(--primary); color: var(--primary);" onclick="appController.broadcastAlert()"><i class="fa-solid fa-bullhorn"></i> Broadcast Alert</button>
+                <div class="flex-gap-1 mt-1">
+                    <button class="btn btn-danger flex-1" onclick="appController.triggerEmergency()"><i class="fa-solid fa-person-running"></i> Trigger Emergency Evacuation</button>
+                    <button class="btn border-primary flex-1 text-primary" onclick="appController.broadcastAlert()"><i class="fa-solid fa-bullhorn"></i> Broadcast Alert</button>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="card glass mt-1">
+                <h3><i class="fa-solid fa-list-ul"></i> Activity Log</h3>
+                <div id="admin-log" class="flex-column" style="max-height: 150px; overflow-y: auto;">
+                    <div class="text-small text-muted mb-1">[System] Command Center initialized.</div>
                 </div>
             </div>
 

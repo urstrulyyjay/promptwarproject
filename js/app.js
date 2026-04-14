@@ -6,14 +6,28 @@ const appController = {
 
     initRole: function(role) {
         this.currentRole = role;
-        document.getElementById('role-selector').classList.add('hidden');
+        const selector = document.getElementById('role-selector');
+        if (selector) selector.classList.add('hidden');
         
         if(role === 'user') {
-            document.getElementById('user-app').classList.remove('hidden');
+            const userApp = document.getElementById('user-app');
+            if (userApp) userApp.classList.remove('hidden');
             this.initUserDashboard();
         } else {
-            document.getElementById('admin-app').classList.remove('hidden');
+            const adminApp = document.getElementById('admin-app');
+            if (adminApp) adminApp.classList.remove('hidden');
             this.initAdminDashboard();
+        }
+
+        // Start UI polling for live updates
+        if (!this.pollInterval) {
+            this.pollInterval = setInterval(() => {
+                if (this.currentRole === 'user' && document.getElementById('view-queues').classList.contains('active')) {
+                    this.renderQueues();
+                } else if (this.currentRole === 'admin') {
+                    this.initAdminDashboard();
+                }
+            }, 3000);
         }
     },
 
@@ -26,10 +40,10 @@ const appController = {
         // Show active
         document.getElementById(`view-${tabId}`).classList.add('active');
         
-        // Find the nav item and make active (using poor man's matching based on icon)
-        let index = ['home', 'map', 'queues'].indexOf(tabId);
-        if(index >= 0) {
-            document.querySelectorAll('.nav-item')[index].classList.add('active');
+        // Find the nav item and make active based on data-tab
+        const activeNav = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+        if(activeNav) {
+            activeNav.classList.add('active');
         }
 
         // Add special hooks
@@ -43,19 +57,28 @@ const appController = {
         // Run AI brain suggestions
         const bestGate = window.aiEngine.getBestGate();
         if(bestGate) {
-            document.getElementById('suggested-gate').innerText = `${bestGate.name} (Only ${bestGate.avgWait}m wait)`;
+            const gateEl = document.getElementById('suggested-gate');
+            if (gateEl) gateEl.innerText = `${bestGate.name} (Only ${bestGate.avgWait}m wait)`;
         }
 
         const foodRec = window.aiEngine.getFoodRecommendation('stall1');
-        if(foodRec.trigger) {
-            document.getElementById('food-suggestion').innerHTML = `
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Tip: ${foodRec.message}
-            `;
+        if(foodRec && foodRec.trigger) {
+            const foodSuggEl = document.getElementById('food-suggestion');
+            if (foodSuggEl) {
+                foodSuggEl.innerHTML = `
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI Tip: ${foodRec.message}
+                `;
+            }
             
-            document.getElementById('ai-suggestion-box').innerHTML = `
-                <strong><i class="fa-solid fa-bolt"></i> Crowd Optimized Route Available</strong>
-                <span style="font-size:0.9rem;">Switch to ${bestGate.name} and pre-order from ${foodRec.alternative.name} to save 35 minutes!</span>
-            `;
+            const aiSuggBox = document.getElementById('ai-suggestion-box');
+            let alternativeName = foodRec.alternative ? foodRec.alternative.name : "another stall";
+            let bestGateName = bestGate ? bestGate.name : "another gate";
+            if (aiSuggBox) {
+                aiSuggBox.innerHTML = `
+                    <strong><i class="fa-solid fa-bolt"></i> Crowd Optimized Route Available</strong>
+                    <span class="text-small">Switch to ${bestGateName} and pre-order from ${alternativeName} to save 35 minutes!</span>
+                `;
+            }
         }
     },
 
@@ -67,17 +90,26 @@ const appController = {
     },
 
     activateSmartRoute: function() {
-        // WOW feature logic
-        document.getElementById('default-path').classList.add('hidden');
-        document.getElementById('smart-path').classList.remove('hidden');
-        
-        const alertBox = document.getElementById('route-alert');
-        alertBox.className = "recommendation-box glass border-success";
-        alertBox.style.borderColor = "var(--success)";
-        alertBox.innerHTML = `
-            <strong class="text-success"><i class="fa-solid fa-check-circle"></i> Smart Route Active</strong>
-            <span style="font-size:0.9rem;">You are avoiding the concourse jam. ETA reduced by 10 mins.</span>
-        `;
+        // WOW feature logic based on data state
+        const routeStatus = window.aiEngine.checkRouteStatus();
+        if (routeStatus && routeStatus.trigger) {
+            document.getElementById('default-path').classList.add('hidden');
+            document.getElementById('smart-path').classList.remove('hidden');
+            
+            const alertBox = document.getElementById('route-alert');
+            alertBox.className = "recommendation-box glass border-success";
+            alertBox.innerHTML = `
+                <strong class="text-success"><i class="fa-solid fa-check-circle"></i> Smart Route Active</strong>
+                <span class="text-small">You are avoiding the concourse jam. ETA reduced by 10 mins.</span>
+            `;
+
+            // Clear the congestion
+            if (window.stadiumData && window.stadiumData.routes) {
+                window.stadiumData.routes.currentRoute.status = 'clear';
+            }
+        } else {
+            alert("Route is currently clear, no smart routing needed.");
+        }
     },
 
     renderQueues: function() {
@@ -135,15 +167,35 @@ const appController = {
             let btnAction = g.status === 'open' ? 'Close Gate' : 'Open Gate';
             let btnClass = g.status === 'open' ? 'btn-danger' : 'btn-primary';
             gateContainer.innerHTML += `
-                <div class="stat-row" style="align-items:center;">
+                <div class="stat-row flex-align-center">
                     <div>
-                        <strong style="display:block;">${g.name}</strong>
+                        <strong class="d-block">${g.name}</strong>
                         <span class="text-muted text-small">${g.crowdLevel}% Capacity • Wait: ${g.avgWait}m</span>
                     </div>
-                    <button class="btn ${btnClass}" style="padding: 0.4rem 0.8rem; font-size:0.8rem;" onclick="alert('Command sent to ${g.name}')">${btnAction}</button>
+                    <button class="btn ${btnClass} btn-small" onclick="appController.toggleGate('${g.id}')">${btnAction}</button>
                 </div>
             `;
         }
+    },
+
+    toggleGate: function(gateId) {
+        if (!window.stadiumData || !window.stadiumData.gates[gateId]) return;
+        const gate = window.stadiumData.gates[gateId];
+        const newStatus = gate.status === 'open' ? 'closed' : 'open';
+        gate.status = newStatus;
+        
+        this.appendAdminLog(`Gate ${gate.name} was ${newStatus.toUpperCase()}`);
+        this.initAdminDashboard(); // Re-render immediately
+    },
+
+    appendAdminLog: function(message) {
+        const logContainer = document.getElementById('admin-log');
+        if (!logContainer) return;
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const entry = document.createElement('div');
+        entry.className = 'text-small text-muted mb-1';
+        entry.innerHTML = `[${time}] ${message}`;
+        logContainer.prepend(entry);
     },
 
     triggerEmergency: function() {

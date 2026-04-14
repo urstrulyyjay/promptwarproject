@@ -35,9 +35,11 @@ const aiEngine = {
     // Logic 1: Find the best gate based on lowest crowd level
     getBestGate: () => {
         let best = null;
+        if (!stadiumData || !stadiumData.gates) return null;
+        
         for (let key in stadiumData.gates) {
             let gate = stadiumData.gates[key];
-            if (gate.status === "open") {
+            if (gate && gate.status === "open") {
                 if (!best || gate.crowdLevel < best.crowdLevel) {
                     best = gate;
                 }
@@ -48,24 +50,30 @@ const aiEngine = {
 
     // Logic 2: Food Recommendation
     getFoodRecommendation: (preferredStallId) => {
+        if (!stadiumData || !stadiumData.food) return { trigger: false };
         const preferred = stadiumData.food[preferredStallId];
+        
+        if (!preferred) return { trigger: false };
+
         // If queue is > 15 mins, suggest a faster alternative
-        if (preferred && preferred.queueTime > 15) {
+        if (preferred.queueTime > 15) {
             let bestAlternative = null;
             for (let key in stadiumData.food) {
                 let stall = stadiumData.food[key];
-                if (key !== preferredStallId && stall.queueTime < 10) {
+                if (key !== preferredStallId && stall && stall.queueTime < 10) {
                     if (!bestAlternative || stall.queueTime < bestAlternative.queueTime) {
                         bestAlternative = stall;
                     }
                 }
             }
-            return {
-                trigger: true,
-                original: preferred,
-                alternative: bestAlternative,
-                message: `The ${preferred.name} line is ${preferred.queueTime} mins long. Go to ${bestAlternative.name} instead (only ${bestAlternative.queueTime} mins away).`
-            };
+            if (bestAlternative) {
+                return {
+                    trigger: true,
+                    original: preferred,
+                    alternative: bestAlternative,
+                    message: `The ${preferred.name} line is ${preferred.queueTime} mins long. Go to ${bestAlternative.name} instead (only ${bestAlternative.queueTime} mins away).`
+                };
+            }
         }
         return { trigger: false };
     },
@@ -86,3 +94,28 @@ const aiEngine = {
 // Expose to window for app.js
 window.stadiumData = stadiumData;
 window.aiEngine = aiEngine;
+
+// Live Simulation Jitter
+function simulateLiveUpdates() {
+    // Randomize queues
+    for (let key in stadiumData.food) {
+        let diff = Math.floor(Math.random() * 5) - 2; // -2 to +2
+        stadiumData.food[key].queueTime = Math.max(0, stadiumData.food[key].queueTime + diff);
+    }
+    // Randomize zones
+    for (let key in stadiumData.zones) {
+        let diff = Math.floor(Math.random() * 11) - 5; // -5 to +5
+        stadiumData.zones[key].density = Math.max(0, Math.min(100, stadiumData.zones[key].density + diff));
+    }
+    // Randomize gates
+    for (let key in stadiumData.gates) {
+        if (stadiumData.gates[key].status === 'open') {
+            let diff = Math.floor(Math.random() * 5) - 2;
+            stadiumData.gates[key].crowdLevel = Math.max(0, Math.min(100, stadiumData.gates[key].crowdLevel + diff));
+            stadiumData.gates[key].avgWait = Math.max(0, Math.floor(stadiumData.gates[key].crowdLevel * 0.3));
+        }
+    }
+}
+
+// Start simulation immediately so data feels alive
+setInterval(simulateLiveUpdates, 3000);
