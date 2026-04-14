@@ -2,7 +2,7 @@
 // The "Brain" and Data Layer
 
 // Structured Mock Data for the Stadium
-const stadiumData = {
+export const stadiumData = {
     gates: {
         "gateA": { id: "gateA", name: "Gate A (North)", crowdLevel: 85, status: "open", avgWait: 25 },
         "gateB": { id: "gateB", name: "Gate B (South)", crowdLevel: 30, status: "open", avgWait: 5 },
@@ -31,7 +31,7 @@ const stadiumData = {
 };
 
 // Smart Recommendation Engine (The "Brain")
-const aiEngine = {
+export const aiEngine = {
     // Logic 1: Find the best gate based on lowest crowd level
     getBestGate: () => {
         let best = null;
