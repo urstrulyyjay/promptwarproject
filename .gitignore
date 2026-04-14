@@ -1,0 +1,9 @@
+# Ignore config with API keys
+src/config.js
+
+# Node / system files
+node_modules/
+.DS_Store
+
+# Logs
+*.log
