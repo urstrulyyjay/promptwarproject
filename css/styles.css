@@ -132,8 +132,11 @@ h1, h2, h3 { font-weight: 800; margin-bottom: 0.5rem; }
   font-weight: 800;
   letter-spacing: -0.5px;
   background: -webkit-linear-gradient(right, #00D1FF, #B35CFF);
+  background: linear-gradient(to left, #00D1FF, #B35CFF);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 /* Main Content Area */
