@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for standard vector icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="src/styles/styles.css">
 </head>
 <body>
 
@@ -17,10 +17,10 @@
         <h1 class="header-title role-title mb-2 text-center">
             StadiumFlow
         </h1>
-        <button class="btn btn-primary w-250" onclick="appController.initRole('user')" aria-label="Enter as Fan">
+        <button class="btn btn-primary w-250" id="btn-role-user" aria-label="Enter as Fan">
             <i class="fa-solid fa-user"></i> Enter as Fan
         </button>
-        <button class="btn btn-danger w-250" onclick="appController.initRole('admin')" aria-label="Enter as Staff">
+        <button class="btn btn-danger w-250" id="btn-role-admin" aria-label="Enter as Staff">
             <i class="fa-solid fa-clipboard-user"></i> Enter as Staff
         </button>
     </div>
@@ -52,7 +52,7 @@
                         <span>AI Suggestion</span>
                         <span class="text-success" id="suggested-gate"><strong>Calculating...</strong></span>
                     </div>
-                    <button class="btn btn-primary w-100 mt-1 p-05" onclick="appController.acceptGateAlternative()">Switch to Fast Gate</button>
+                    <button class="btn btn-primary w-100 mt-1 p-05" id="btn-accept-gate">Switch to Fast Gate</button>
                 </div>
 
                 <div class="card glass">
@@ -89,7 +89,7 @@
                 <div id="route-alert" class="recommendation-box danger glass mt-1">
                     <strong><i class="fa-solid fa-triangle-exclamation"></i> Congestion Detected</strong>
                     <span class="text-small">The main concourse is blocked. Delay: 10 mins.</span>
-                    <button class="btn btn-primary w-100 mt-05 p-05" onclick="appController.activateSmartRoute()">Activate Smart Route</button>
+                    <button class="btn btn-primary w-100 mt-05 p-05" id="btn-activate-route">Activate Smart Route</button>
                 </div>
             </section>
 
@@ -107,15 +107,15 @@
         </main>
 
         <nav class="bottom-nav">
-            <div class="nav-item active" data-tab="home" onclick="appController.switchTab('home')" role="button" tabindex="0" aria-label="Home">
+            <div class="nav-item active" data-tab="home" role="button" tabindex="0" aria-label="Home">
                 <i class="fa-solid fa-house"></i>
                 <span>Home</span>
             </div>
-            <div class="nav-item" data-tab="map" onclick="appController.switchTab('map')" role="button" tabindex="0" aria-label="Map & Routing">
+            <div class="nav-item" data-tab="map" role="button" tabindex="0" aria-label="Map & Routing">
                 <i class="fa-solid fa-map-location-dot"></i>
                 <span>Map & Routing</span>
             </div>
-            <div class="nav-item" data-tab="queues" onclick="appController.switchTab('queues')" role="button" tabindex="0" aria-label="Digital Queues">
+            <div class="nav-item" data-tab="queues" role="button" tabindex="0" aria-label="Digital Queues">
                 <i class="fa-solid fa-clock"></i>
                 <span>Queues</span>
             </div>
@@ -126,7 +126,7 @@
     <div class="app-container hidden" id="admin-app">
         <header class="header">
             <div class="header-title text-danger">Staff Command Center</div>
-            <button class="btn btn-danger p-05" onclick="location.reload()" aria-label="Exit Admin">Exit</button>
+            <button class="btn btn-danger p-05" id="btn-admin-exit" aria-label="Exit Admin">Exit</button>
         </header>
         <main class="content-area">
             
@@ -152,8 +152,8 @@
             <div class="card glass border-danger">
                 <h3 class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Global Controls</h3>
                 <div class="flex-gap-1 mt-1">
-                    <button class="btn btn-danger flex-1" onclick="appController.triggerEmergency()"><i class="fa-solid fa-person-running"></i> Trigger Emergency Evacuation</button>
-                    <button class="btn border-primary flex-1 text-primary" onclick="appController.broadcastAlert()"><i class="fa-solid fa-bullhorn"></i> Broadcast Alert</button>
+                    <button class="btn btn-danger flex-1" id="btn-trigger-emergency"><i class="fa-solid fa-person-running"></i> Trigger Emergency Evacuation</button>
+                    <button class="btn border-primary flex-1 text-primary" id="btn-broadcast-alert"><i class="fa-solid fa-bullhorn"></i> Broadcast Alert</button>
                 </div>
             </div>
 
@@ -168,7 +168,7 @@
         </main>
     </div>
 
-    <script src="js/data.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Replace statically referenced JS with our main module -->
+    <script type="module" src="src/app.js"></script>
 </body>
 </html>
