@@ -1,6 +1,6 @@
 # 🚀 StadiumFlow — Smart Stadium Companion System
 
-![StadiumFlow](img/stadium_bg.png)
+
 
 ## 🌍 The Problem
 
@@ -85,13 +85,6 @@ StadiumFlow continuously:
 6. Control gates → See system react
 
 ---
-
-## 🚀 Run Locally
-
-```bash
-python3 -m http.server 8001
-
-
 📈 Impact
 ⏱️ Reduce waiting time by up to 30–40%
 🚶 Optimize crowd distribution
@@ -110,3 +103,10 @@ Developer | Creative Technologist
 ⭐ Support
 
 If you like this project, give it a ⭐ on GitHub!
+
+## 🚀 Run Locally
+
+```bash
+python3 -m http.server 8001
+
+
