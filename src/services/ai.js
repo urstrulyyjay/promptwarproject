@@ -1,16 +1,35 @@
 // src/services/ai.js
-import { GoogleGenAI } from 'https://esm.sh/@google/genai';
+// Gemini AI Service — graceful fallback to local logic
+// NO top-level await
+
 import { CONFIG } from '../config.js';
 
-let ai = null;
-if (CONFIG.GEMINI_API_KEY && CONFIG.GEMINI_API_KEY !== "your_gemini_api_key_here") {
-    ai = new GoogleGenAI({ apiKey: CONFIG.GEMINI_API_KEY });
+const isGeminiConfigured = CONFIG.GEMINI_API_KEY &&
+    CONFIG.GEMINI_API_KEY !== "" &&
+    CONFIG.GEMINI_API_KEY !== "your_gemini_api_key_here";
+
+let _aiPromise = null;
+function lazyInitAI() {
+    if (!isGeminiConfigured) return Promise.resolve(null);
+    if (_aiPromise) return _aiPromise;
+    _aiPromise = (async () => {
+        try {
+            const { GoogleGenAI } = await import('https://esm.sh/@google/genai');
+            console.log("Gemini AI initialized.");
+            return new GoogleGenAI({ apiKey: CONFIG.GEMINI_API_KEY });
+        } catch (e) {
+            console.warn("Gemini AI init failed, using local fallback:", e.message);
+            return null;
+        }
+    })();
+    return _aiPromise;
 }
 
 export const generateFoodRecommendation = async (stadiumState, preferredStallId) => {
+    const ai = isGeminiConfigured ? await lazyInitAI() : null;
+
     // Fallback if API not configured
     if (!ai) {
-        console.warn("Gemini Engine not configured. Using local fallback.");
         const preferred = stadiumState.foodQueues[preferredStallId];
         if (!preferred) return { trigger: false };
         if (preferred.queueTime > 15) {

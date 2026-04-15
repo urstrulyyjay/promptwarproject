@@ -1,29 +1,64 @@
 // src/services/auth.js
-import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from 'https://esm.sh/firebase@10.8.0/auth';
-import './db.js';
+// Graceful auth service — works with or without Firebase
+// NO top-level await — everything is lazy
 
-export const auth = getAuth();
+import { CONFIG } from '../config.js';
+
+const isFirebaseConfigured = CONFIG.FIREBASE &&
+    CONFIG.FIREBASE.apiKey &&
+    CONFIG.FIREBASE.apiKey !== "demo-api-key" &&
+    CONFIG.FIREBASE.apiKey !== "your_api_key_here" &&
+    CONFIG.FIREBASE.apiKey !== "dummy-api-key";
+
+// Lazy init — only loads Firebase modules when actually needed
+let _authPromise = null;
+function lazyInitAuth() {
+    if (!isFirebaseConfigured) return Promise.resolve(null);
+    if (_authPromise) return _authPromise;
+    _authPromise = (async () => {
+        try {
+            const { app } = await import('./db.js');
+            // Wait a tick for db.js lazyInit if needed
+            const authMod = await import('https://esm.sh/firebase@10.8.0/auth');
+            if (app) {
+                return {
+                    auth: authMod.getAuth(app),
+                    signInAnonymously: authMod.signInAnonymously,
+                    onAuthStateChanged: authMod.onAuthStateChanged,
+                    signOut: authMod.signOut
+                };
+            }
+        } catch (e) {
+            console.warn("Firebase Auth not available, using offline mode:", e.message);
+        }
+        return null;
+    })();
+    return _authPromise;
+}
 
 /**
  * Initializes authentication and listens for state changes.
- * @param {Function} onUserLogin Callback when a user logs in.
- * @param {Function} onStaffLogin Callback when staff logs in.
- * @param {Function} onLogout Callback when user logs out.
+ * Falls back to a no-op if Firebase isn't configured.
  */
 export const watchAuthState = (onUserLogin, onStaffLogin, onLogout) => {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // For hackathon simplicity, we determine role via custom claim or UI override
-            // Here, we'll store local role selection to simulate proper claims without an admin SDK backend.
-            const role = sessionStorage.getItem('stadium_role');
-            if (role === 'admin') {
-                onStaffLogin();
+    if (!isFirebaseConfigured) {
+        console.log("Auth: Offline mode — role selection handled via direct DOM.");
+        return;
+    }
+    lazyInitAuth().then(authCtx => {
+        if (!authCtx) return;
+        authCtx.onAuthStateChanged(authCtx.auth, (user) => {
+            if (user) {
+                const role = sessionStorage.getItem('stadium_role');
+                if (role === 'admin') {
+                    onStaffLogin();
+                } else {
+                    onUserLogin();
+                }
             } else {
-                onUserLogin();
+                onLogout();
             }
-        } else {
-            onLogout();
-        }
+        });
     });
 };
 
@@ -32,10 +67,26 @@ export const watchAuthState = (onUserLogin, onStaffLogin, onLogout) => {
  */
 export const loginAsRole = async (role) => {
     sessionStorage.setItem('stadium_role', role);
-    await signInAnonymously(auth);
+    if (!isFirebaseConfigured) return;
+    const authCtx = await lazyInitAuth();
+    if (authCtx) {
+        try {
+            await authCtx.signInAnonymously(authCtx.auth);
+        } catch (e) {
+            console.warn("Anonymous sign-in failed:", e.message);
+        }
+    }
 };
 
 export const logout = async () => {
     sessionStorage.removeItem('stadium_role');
-    await signOut(auth);
+    if (!isFirebaseConfigured) return;
+    const authCtx = await lazyInitAuth();
+    if (authCtx) {
+        try {
+            await authCtx.signOut(authCtx.auth);
+        } catch (e) {
+            console.warn("Sign-out failed:", e.message);
+        }
+    }
 };

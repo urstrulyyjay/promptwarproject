@@ -1,34 +1,41 @@
 // src/services/maps.js
-import { Loader } from 'https://esm.sh/@googlemaps/js-api-loader@1.16.6';
+// Google Maps Service — graceful fallback to static SVG map
+// NO top-level await
+
 import { CONFIG } from '../config.js';
 
 let map = null;
 
+const isMapsConfigured = CONFIG.GOOGLE_MAPS_API_KEY &&
+    CONFIG.GOOGLE_MAPS_API_KEY !== "" &&
+    CONFIG.GOOGLE_MAPS_API_KEY !== "your_maps_api_key_here";
+
 export const initGoogleMap = async (containerId) => {
-    if (CONFIG.GOOGLE_MAPS_API_KEY === "your_maps_api_key_here") {
-        console.warn("Google Maps not configured. Using static fallback.");
-        return; // Stick to the static CSS SVG map layout
+    if (!isMapsConfigured) {
+        console.log("Maps: Not configured — using static SVG fallback.");
+        return;
     }
 
-    const loader = new Loader({
-        apiKey: CONFIG.GOOGLE_MAPS_API_KEY,
-        version: "weekly",
-        libraries: ["visualization"]
-    });
-
     try {
+        const { Loader } = await import('https://esm.sh/@googlemaps/js-api-loader@1.16.6');
+
+        const loader = new Loader({
+            apiKey: CONFIG.GOOGLE_MAPS_API_KEY,
+            version: "weekly",
+            libraries: ["visualization"]
+        });
+
         const { Map } = await loader.importLibrary("maps");
         const container = document.getElementById(containerId);
-        container.innerHTML = ""; // Clear SVG fallback
+        container.innerHTML = "";
 
         map = new Map(container, {
-            center: { lat: 37.7749, lng: -122.4194 }, // Center of stadium
+            center: { lat: 37.7749, lng: -122.4194 },
             zoom: 18,
-            mapId: 'DEMO_MAP_ID', // Replace with real map ID for advanced styling
+            mapId: 'DEMO_MAP_ID',
             disableDefaultUI: true
         });
 
-        // Add a mock heat map for representation of crowd
         const { HeatmapLayer } = await loader.importLibrary("visualization");
         const heatmapData = [
             new google.maps.LatLng(37.7749, -122.4194),
@@ -37,7 +44,7 @@ export const initGoogleMap = async (containerId) => {
             new google.maps.LatLng(37.7747, -122.4193),
         ];
 
-        const heatmap = new HeatmapLayer({
+        new HeatmapLayer({
             data: heatmapData,
             map: map,
             radius: 40
